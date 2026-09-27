@@ -1,0 +1,3536 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.2.0
+  description: SakhiSetu employment-readiness API. Cookie-session authentication; role-based authorization (woman, employer, admin).
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+  - name: auth
+  - name: dashboard
+  - name: profile
+  - name: skills
+  - name: learning
+  - name: opportunities
+  - name: applications
+  - name: employer
+  - name: feedback
+  - name: reports
+  - name: notifications
+  - name: admin
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags:
+        - health
+      summary: Health check
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /auth/register:
+    post:
+      operationId: register
+      tags:
+        - auth
+      summary: Register a woman or employer account (admin accounts cannot be registered)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterInput"
+      responses:
+        "201":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CurrentUser"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /auth/login:
+    post:
+      operationId: login
+      tags:
+        - auth
+      summary: Sign in
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CurrentUser"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /auth/logout:
+    post:
+      operationId: logout
+      tags:
+        - auth
+      summary: Sign out
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ok"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /auth/me:
+    get:
+      operationId: getCurrentUser
+      tags:
+        - auth
+      summary: Return the signed-in user
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CurrentUser"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /auth/demo:
+    get:
+      operationId: getDemoAccounts
+      tags:
+        - auth
+      summary: Demo accounts (only when DEMO_MODE is enabled)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DemoAccounts"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /ai/status:
+    get:
+      operationId: getAiStatus
+      tags:
+        - learning
+      summary: Whether optional AI-assisted learning feedback is configured
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiStatus"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /dashboard:
+    get:
+      operationId: getDashboard
+      tags:
+        - dashboard
+      summary: Dashboard summary for the signed-in woman
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Dashboard"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /sakhi-score:
+    get:
+      operationId: getSakhiScore
+      tags:
+        - dashboard
+      summary: Get the current explainable Sakhi Score
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SakhiScore"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /sakhi-score/history:
+    get:
+      operationId: getSakhiScoreHistory
+      tags:
+        - dashboard
+      summary: Get historical Sakhi Score snapshots
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ScoreHistoryItem"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /sakhi-score/explanation:
+    get:
+      operationId: getSakhiScoreExplanation
+      tags:
+        - dashboard
+      summary: Explain the Sakhi Score
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SakhiScore"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /recommendations/next-step:
+    get:
+      operationId: getNextStepRecommendation
+      tags:
+        - dashboard
+      summary: Recommended next step
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NextStep"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /profile:
+    get:
+      operationId: getProfile
+      tags:
+        - profile
+      summary: Get the readiness profile
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      operationId: updateProfile
+      tags:
+        - profile
+      summary: Update the readiness profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfileInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /skills:
+    get:
+      operationId: listSkills
+      tags:
+        - skills
+      summary: List my skills
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Skill"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      operationId: addSkill
+      tags:
+        - skills
+      summary: Add a skill
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SkillInput"
+      responses:
+        "201":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Skill"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /skills/catalog:
+    get:
+      operationId: listSkillCatalog
+      tags:
+        - skills
+      summary: Skill catalog for suggestions
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SkillCatalogItem"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /skills/{id}:
+    put:
+      operationId: updateSkill
+      tags:
+        - skills
+      summary: Update level or experience for one of my skills
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SkillUpdateInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Skill"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      operationId: deleteSkill
+      tags:
+        - skills
+      summary: Remove one of my skills
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ok"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /skills/{id}/evidence:
+    post:
+      operationId: submitSkillEvidence
+      tags:
+        - skills
+      summary: Submit optional evidence for review (does not verify the skill by itself)
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SkillEvidenceInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Skill"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /assessments:
+    get:
+      operationId: listAssessments
+      tags:
+        - learning
+      summary: Skill assessments available for my skills
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SkillAssessmentOverview"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      operationId: submitSkillCheck
+      tags:
+        - learning
+      summary: Take a skill check (assessment without completing lessons first)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SkillCheckInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssessmentResult"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /courses:
+    get:
+      operationId: listCourses
+      tags:
+        - learning
+      summary: List courses
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Course"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /courses/{id}:
+    get:
+      operationId: getCourse
+      tags:
+        - learning
+      summary: Course with lessons, questions and my progress
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseDetail"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /courses/{id}/enroll:
+    post:
+      operationId: enrollCourse
+      tags:
+        - learning
+      summary: Enroll in a course
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Enrollment"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /courses/{id}/progress:
+    put:
+      operationId: updateCourseProgress
+      tags:
+        - learning
+      summary: Mark a lesson complete or incomplete
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProgressInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Enrollment"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /courses/{id}/assessment:
+    post:
+      operationId: submitCourseAssessment
+      tags:
+        - learning
+      summary: Submit the course assessment
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssessmentInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssessmentResult"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /certificates:
+    get:
+      operationId: listCertificates
+      tags:
+        - learning
+      summary: My certificates
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Certificate"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /opportunities:
+    get:
+      operationId: listOpportunities
+      tags:
+        - opportunities
+      summary: Search opportunities
+      parameters:
+        - in: query
+          name: q
+          required: false
+          schema: &a1
+            type: string
+        - in: query
+          name: location
+          required: false
+          schema: *a1
+        - in: query
+          name: workType
+          required: false
+          schema: *a1
+        - in: query
+          name: category
+          required: false
+          schema: *a1
+        - in: query
+          name: skill
+          required: false
+          schema: *a1
+        - in: query
+          name: maxExperience
+          required: false
+          schema: &a2
+            type: number
+        - in: query
+          name: availability
+          required: false
+          schema: *a1
+        - in: query
+          name: saved
+          required: false
+          schema: &a3
+            type: boolean
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Opportunity"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /opportunities/filters:
+    get:
+      operationId: getOpportunityFilters
+      tags:
+        - opportunities
+      summary: Available filter values
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpportunityFilters"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /opportunities/{id}:
+    get:
+      operationId: getOpportunity
+      tags:
+        - opportunities
+      summary: Opportunity details
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Opportunity"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /opportunities/{id}/apply:
+    post:
+      operationId: applyToOpportunity
+      tags:
+        - opportunities
+      summary: Apply
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplyInput"
+      responses:
+        "201":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Application"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /opportunities/{id}/save:
+    post:
+      operationId: saveOpportunity
+      tags:
+        - opportunities
+      summary: Save
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Opportunity"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      operationId: unsaveOpportunity
+      tags:
+        - opportunities
+      summary: Remove from saved
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Opportunity"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /opportunities/{id}/match-explanation:
+    get:
+      operationId: getMatchExplanation
+      tags:
+        - opportunities
+      summary: Explain why this opportunity matches
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MatchExplanation"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /matches:
+    get:
+      operationId: listMatches
+      tags:
+        - opportunities
+      summary: Opportunities ranked by match
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Opportunity"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /applications:
+    get:
+      operationId: listApplications
+      tags:
+        - applications
+      summary: List my applications
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Application"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /applications/{id}:
+    get:
+      operationId: getApplication
+      tags:
+        - applications
+      summary: Application with history
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Application"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /applications/{id}/withdraw:
+    post:
+      operationId: withdrawApplication
+      tags:
+        - applications
+      summary: Withdraw an application
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Application"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /employer/profile:
+    get:
+      operationId: getEmployerProfile
+      tags:
+        - employer
+      summary: Employer profile
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployerProfile"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      operationId: updateEmployerProfile
+      tags:
+        - employer
+      summary: Update employer profile (changing verification details re-submits for review)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmployerProfileInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployerProfile"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /employer/dashboard:
+    get:
+      operationId: getEmployerDashboard
+      tags:
+        - employer
+      summary: Employer dashboard
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployerDashboard"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /employer/opportunities:
+    get:
+      operationId: listEmployerOpportunities
+      tags:
+        - employer
+      summary: My opportunities
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EmployerOpportunity"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      operationId: createEmployerOpportunity
+      tags:
+        - employer
+      summary: Create an opportunity (verified employers only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpportunityInput"
+      responses:
+        "201":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployerOpportunity"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /employer/opportunities/{id}:
+    get:
+      operationId: getEmployerOpportunity
+      tags:
+        - employer
+      summary: One of my opportunities
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployerOpportunity"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      operationId: updateEmployerOpportunity
+      tags:
+        - employer
+      summary: Edit or close one of my opportunities
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpportunityInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployerOpportunity"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /employer/applications:
+    get:
+      operationId: listEmployerApplications
+      tags:
+        - employer
+      summary: Applicants for my opportunities
+      parameters:
+        - in: query
+          name: opportunityId
+          required: false
+          schema: *a2
+        - in: query
+          name: status
+          required: false
+          schema: *a1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EmployerApplication"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /employer/applications/{id}/status:
+    put:
+      operationId: updateEmployerApplicationStatus
+      tags:
+        - employer
+      summary: Review, shortlist, interview, select or reject
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplicationStatusInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployerApplication"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /employer/applications/{id}/complete:
+    post:
+      operationId: completeEmployerApplication
+      tags:
+        - employer
+      summary: Mark selected work as completed (enables feedback)
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployerApplication"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /feedback:
+    get:
+      operationId: listFeedback
+      tags:
+        - feedback
+      summary: Feedback received, given and due
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeedbackOverview"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      operationId: createFeedback
+      tags:
+        - feedback
+      summary: Give feedback after completed work
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FeedbackInput"
+      responses:
+        "201":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Feedback"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /reports:
+    get:
+      operationId: listReports
+      tags:
+        - reports
+      summary: Reports I filed
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Report"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      operationId: createReport
+      tags:
+        - reports
+      summary: Report an employer, opportunity, feedback or content
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReportInput"
+      responses:
+        "201":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /notifications:
+    get:
+      operationId: listNotifications
+      tags:
+        - notifications
+      summary: My notifications
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationList"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /notifications/read-all:
+    put:
+      operationId: markAllNotificationsRead
+      tags:
+        - notifications
+      summary: Mark all as read
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ok"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /notifications/{id}/read:
+    put:
+      operationId: markNotificationRead
+      tags:
+        - notifications
+      summary: Mark one as read
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/dashboard:
+    get:
+      operationId: getAdminDashboard
+      tags:
+        - admin
+      summary: Admin dashboard
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminDashboard"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/users:
+    get:
+      operationId: listAdminUsers
+      tags:
+        - admin
+      summary: Users
+      parameters:
+        - in: query
+          name: role
+          required: false
+          schema: *a1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminUser"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/users/{id}:
+    get:
+      operationId: getAdminUser
+      tags:
+        - admin
+      summary: User detail
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUserDetail"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/users/{id}/status:
+    put:
+      operationId: updateAdminUserStatus
+      tags:
+        - admin
+      summary: Suspend or reactivate an account
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminStatusInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/employers:
+    get:
+      operationId: listAdminEmployers
+      tags:
+        - admin
+      summary: Employers
+      parameters:
+        - in: query
+          name: status
+          required: false
+          schema: *a1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminEmployer"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/employers/{id}/verify:
+    put:
+      operationId: verifyEmployer
+      tags:
+        - admin
+      summary: Approve or reject employer verification
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyEmployerInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminEmployer"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/opportunities:
+    get:
+      operationId: listAdminOpportunities
+      tags:
+        - admin
+      summary: Opportunities
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminOpportunity"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/opportunities/{id}/status:
+    put:
+      operationId: updateAdminOpportunityStatus
+      tags:
+        - admin
+      summary: Set opportunity status (open, closed, removed)
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminStatusInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminOpportunity"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/reports:
+    get:
+      operationId: listAdminReports
+      tags:
+        - admin
+      summary: Reports
+      parameters:
+        - in: query
+          name: status
+          required: false
+          schema: *a1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Report"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/reports/{id}:
+    put:
+      operationId: reviewReport
+      tags:
+        - admin
+      summary: Review, resolve or reject a report
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReportReviewInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/skill-evidence:
+    get:
+      operationId: listSkillEvidence
+      tags:
+        - admin
+      summary: Skill evidence awaiting review
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminSkillEvidence"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/skill-evidence/{id}:
+    put:
+      operationId: reviewSkillEvidence
+      tags:
+        - admin
+      summary: Verify or reject skill evidence
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SkillReviewInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ok"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/courses:
+    get:
+      operationId: listAdminCourses
+      tags:
+        - admin
+      summary: Courses (including drafts)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminCourse"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      operationId: createAdminCourse
+      tags:
+        - admin
+      summary: Create a course
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CourseInput"
+      responses:
+        "201":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminCourse"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/courses/{id}:
+    put:
+      operationId: updateAdminCourse
+      tags:
+        - admin
+      summary: Edit a course
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CourseInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminCourse"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/courses/{id}/lessons:
+    post:
+      operationId: createAdminLesson
+      tags:
+        - admin
+      summary: Add a lesson
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LessonInput"
+      responses:
+        "201":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminCourse"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/lessons/{id}:
+    put:
+      operationId: updateAdminLesson
+      tags:
+        - admin
+      summary: Edit a lesson
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LessonInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminCourse"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      operationId: deleteAdminLesson
+      tags:
+        - admin
+      summary: Delete a lesson
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminCourse"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/courses/{id}/questions:
+    post:
+      operationId: createAdminQuestion
+      tags:
+        - admin
+      summary: Add an assessment question
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuestionInput"
+      responses:
+        "201":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminCourse"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/questions/{id}:
+    put:
+      operationId: updateAdminQuestion
+      tags:
+        - admin
+      summary: Edit an assessment question
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuestionInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminCourse"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      operationId: deleteAdminQuestion
+      tags:
+        - admin
+      summary: Delete an assessment question
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminCourse"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  parameters:
+    Id:
+      in: path
+      name: id
+      required: true
+      schema:
+        type: number
+  schemas:
+    HealthStatus:
+      type: object
+      required:
+        - status
+      properties:
+        status: *a1
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error: *a1
+        details:
+          type: array
+          items: *a1
+    Ok:
+      type: object
+      required:
+        - ok
+      properties:
+        ok: *a3
+    CurrentUser:
+      type: object
+      required:
+        - id
+        - name
+        - role
+      properties:
+        id: *a2
+        name: *a1
+        email: *a1
+        role:
+          type: string
+          enum:
+            - woman
+            - employer
+            - admin
+        phone: *a1
+        employerId: *a2
+        employerVerificationStatus:
+          type: string
+          enum:
+            - Pending
+            - Verified
+            - Rejected
+    LoginInput:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email: *a1
+        password: *a1
+    RegisterWomanInput:
+      type: object
+      required:
+        - role
+        - name
+        - email
+        - phone
+        - password
+        - city
+      properties:
+        role:
+          type: string
+          enum:
+            - woman
+        name: *a1
+        email: *a1
+        phone: *a1
+        password:
+          type: string
+          minLength: 8
+        city: *a1
+        area: *a1
+        education: *a1
+        employmentStatus: *a1
+        skills:
+          type: array
+          items:
+            type: object
+            required:
+              - name
+            properties:
+              name: *a1
+              level: *a1
+              yearsExperience: *a2
+        interests: &a4
+          type: array
+          items: *a1
+        workPreferences: *a4
+        availability: *a1
+        goal: *a1
+    RegisterEmployerInput:
+      type: object
+      required:
+        - role
+        - businessName
+        - employerName
+        - email
+        - phone
+        - location
+        - businessType
+        - verificationInfo
+        - password
+      properties:
+        role:
+          type: string
+          enum:
+            - employer
+        businessName: *a1
+        employerName: *a1
+        email: *a1
+        phone: *a1
+        location: *a1
+        businessType: *a1
+        description: *a1
+        verificationInfo: *a1
+        evidenceUrl: *a1
+        password:
+          type: string
+          minLength: 8
+    RegisterInput:
+      oneOf:
+        - $ref: "#/components/schemas/RegisterWomanInput"
+        - $ref: "#/components/schemas/RegisterEmployerInput"
+      discriminator:
+        propertyName: role
+    DemoAccounts:
+      type: object
+      required:
+        - enabled
+        - accounts
+      properties:
+        enabled: *a3
+        accounts:
+          type: array
+          items:
+            type: object
+            required:
+              - role
+              - label
+              - email
+            properties:
+              role: *a1
+              label: *a1
+              email: *a1
+              password: *a1
+    AiStatus:
+      type: object
+      required:
+        - enabled
+        - label
+      properties:
+        enabled: *a3
+        label: *a1
+    Skill:
+      type: object
+      required:
+        - id
+        - skillId
+        - name
+        - category
+        - level
+        - verified
+        - verificationStatus
+        - yearsExperience
+        - improvement
+      properties:
+        id: *a2
+        skillId: *a2
+        name: *a1
+        category: *a1
+        level: *a1
+        verified: *a3
+        verificationStatus:
+          type: string
+          enum:
+            - Not Verified
+            - Pending Review
+            - Verified
+            - Rejected
+        yearsExperience: *a2
+        evidenceType:
+          type:
+            - string
+            - "null"
+        evidenceUrl:
+          type:
+            - string
+            - "null"
+        evidenceNote:
+          type:
+            - string
+            - "null"
+        reviewNotes:
+          type:
+            - string
+            - "null"
+        improvement: *a1
+        assessmentCourseId:
+          type:
+            - number
+            - "null"
+        recommendedCourse:
+          oneOf:
+            - type: object
+              required:
+                - id
+                - title
+              properties:
+                id: *a2
+                title: *a1
+            - type: "null"
+    SkillInput:
+      type: object
+      required:
+        - name
+        - level
+      properties:
+        name: *a1
+        level: *a1
+        yearsExperience: *a2
+    SkillUpdateInput:
+      type: object
+      required: []
+      properties:
+        level: *a1
+        yearsExperience: *a2
+    SkillEvidenceInput:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - Certificate
+            - Portfolio
+            - Work sample
+            - Experience document
+        url: *a1
+        note: *a1
+    SkillCatalogItem:
+      type: object
+      required:
+        - id
+        - name
+        - category
+      properties:
+        id: *a2
+        name: *a1
+        category: *a1
+    SkillAssessmentOverview:
+      type: object
+      required:
+        - skillId
+        - skillName
+        - verificationStatus
+        - attempts
+      properties:
+        skillId: *a2
+        skillName: *a1
+        verificationStatus: *a1
+        courseId:
+          type:
+            - number
+            - "null"
+        courseTitle:
+          type:
+            - string
+            - "null"
+        attempts: *a2
+        bestScore:
+          type:
+            - number
+            - "null"
+    Profile:
+      type: object
+      required:
+        - name
+        - city
+        - goal
+        - completion
+        - readiness
+        - availability
+        - workPreferences
+        - skills
+        - verifiedSkills
+        - readyFor
+        - developNext
+      properties:
+        name: *a1
+        email: *a1
+        phone: *a1
+        city: *a1
+        area: *a1
+        education: *a1
+        employmentStatus: *a1
+        interests: *a4
+        goal: *a1
+        experienceNotes: *a1
+        completion: *a2
+        readiness: *a2
+        availability: *a1
+        workPreferences: *a4
+        skills:
+          type: array
+          items:
+            $ref: "#/components/schemas/Skill"
+        verifiedSkills: *a4
+        readyFor: *a4
+        developNext: *a4
+        readinessLevel: *a1
+    ProfileInput:
+      type: object
+      required: []
+      properties:
+        name: *a1
+        phone: *a1
+        city: *a1
+        area: *a1
+        education: *a1
+        employmentStatus: *a1
+        interests: *a4
+        goal: *a1
+        availability: *a1
+        workPreferences: *a4
+        experienceNotes: *a1
+    Lesson:
+      type: object
+      required:
+        - id
+        - position
+        - title
+        - description
+        - videoUrl
+        - durationMinutes
+        - content
+        - objectives
+        - resources
+        - completed
+      properties:
+        id: *a2
+        position: *a2
+        title: *a1
+        description: *a1
+        videoUrl:
+          type:
+            - string
+            - "null"
+        durationMinutes: *a2
+        content: *a1
+        objectives: *a4
+        resources:
+          type: array
+          items:
+            type: object
+            required:
+              - title
+              - url
+            properties:
+              title: *a1
+              url: *a1
+        completed: *a3
+    Question:
+      type: object
+      required:
+        - id
+        - position
+        - type
+        - prompt
+        - options
+        - skillName
+      properties:
+        id: *a2
+        position: *a2
+        type:
+          type: string
+          enum:
+            - multiple_choice
+            - true_false
+            - short_answer
+        prompt: *a1
+        options: *a4
+        skillName:
+          type:
+            - string
+            - "null"
+    AssessmentAttempt:
+      type: object
+      required:
+        - id
+        - kind
+        - attempt
+        - score
+        - passed
+        - createdAt
+      properties:
+        id: *a2
+        kind:
+          type: string
+          enum:
+            - course
+            - skill_check
+        attempt: *a2
+        score: *a2
+        passed: *a3
+        createdAt: *a1
+    Certificate:
+      type: object
+      required:
+        - id
+        - code
+        - courseId
+        - courseTitle
+        - skills
+        - score
+        - issuedAt
+        - holderName
+        - wording
+        - disclaimer
+      properties:
+        id: *a2
+        code: *a1
+        courseId: *a2
+        courseTitle: *a1
+        skills: *a4
+        score: *a2
+        issuedAt: *a1
+        holderName: *a1
+        wording: *a1
+        disclaimer: *a1
+    Course:
+      type: object
+      required:
+        - id
+        - title
+        - category
+        - difficulty
+        - duration
+        - description
+        - skillsGained
+        - verifiesSkills
+        - lessonCount
+        - passingScore
+        - progress
+        - status
+        - passed
+      properties:
+        id: *a2
+        title: *a1
+        category: *a1
+        difficulty: *a1
+        duration: *a1
+        description: *a1
+        skillsGained: *a4
+        verifiesSkills: *a4
+        lessonCount: *a2
+        passingScore: *a2
+        progress: *a2
+        status:
+          type: string
+          enum:
+            - not_started
+            - in_progress
+            - completed
+        passed: *a3
+    CourseDetail:
+      type: object
+      required:
+        - id
+        - title
+        - category
+        - difficulty
+        - duration
+        - description
+        - skillsGained
+        - verifiesSkills
+        - lessonCount
+        - passingScore
+        - progress
+        - status
+        - passed
+        - lessons
+        - questions
+        - attempts
+        - certificate
+        - assessmentReady
+        - aiFeedbackAvailable
+      properties:
+        id: *a2
+        title: *a1
+        category: *a1
+        difficulty: *a1
+        duration: *a1
+        description: *a1
+        skillsGained: *a4
+        verifiesSkills: *a4
+        lessonCount: *a2
+        passingScore: *a2
+        progress: *a2
+        status:
+          type: string
+          enum:
+            - not_started
+            - in_progress
+            - completed
+        passed: *a3
+        lessons:
+          type: array
+          items:
+            $ref: "#/components/schemas/Lesson"
+        questions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Question"
+        attempts:
+          type: array
+          items:
+            $ref: "#/components/schemas/AssessmentAttempt"
+        certificate:
+          oneOf:
+            - $ref: "#/components/schemas/Certificate"
+            - type: "null"
+        assessmentReady: *a3
+        aiFeedbackAvailable: *a3
+    Enrollment:
+      type: object
+      required:
+        - courseId
+        - progress
+        - status
+      properties:
+        courseId: *a2
+        progress: *a2
+        status: *a1
+        completedLessonIds:
+          type: array
+          items: *a2
+        assessmentReady: *a3
+    ProgressInput:
+      type: object
+      required:
+        - lessonId
+      properties:
+        lessonId: *a2
+        completed: *a3
+    AssessmentInput:
+      type: object
+      required:
+        - answers
+      properties:
+        answers:
+          type: array
+          items:
+            type: object
+            required:
+              - questionId
+              - answer
+            properties:
+              questionId: *a2
+              answer: *a1
+    SkillCheckInput:
+      type: object
+      required:
+        - courseId
+        - answers
+      properties:
+        courseId: *a2
+        answers:
+          type: array
+          items:
+            type: object
+            required:
+              - questionId
+              - answer
+            properties:
+              questionId: *a2
+              answer: *a1
+    AiFeedback:
+      type: object
+      required:
+        - label
+        - summary
+        - improvementAreas
+        - practiceQuestions
+      properties:
+        label: *a1
+        summary: *a1
+        improvementAreas: *a4
+        practiceQuestions: *a4
+    AssessmentResult:
+      type: object
+      required:
+        - passed
+        - score
+        - passingScore
+        - attempt
+        - verifiedSkill
+        - verifiedSkills
+        - certificateGenerated
+        - results
+        - sakhiScore
+        - message
+      properties:
+        passed: *a3
+        score: *a2
+        passingScore: *a2
+        attempt: *a2
+        verifiedSkill: *a1
+        verifiedSkills: *a4
+        certificateGenerated: *a3
+        certificate:
+          oneOf:
+            - $ref: "#/components/schemas/Certificate"
+            - type: "null"
+        results:
+          type: array
+          items:
+            type: object
+            required:
+              - questionId
+              - correct
+              - feedback
+            properties:
+              questionId: *a2
+              correct: *a3
+              feedback: *a1
+        sakhiScore:
+          type: object
+          required:
+            - before
+            - after
+          properties:
+            before: *a2
+            after: *a2
+        aiFeedback:
+          oneOf:
+            - $ref: "#/components/schemas/AiFeedback"
+            - type: "null"
+        message: *a1
+    Opportunity:
+      type: object
+      required:
+        - id
+        - title
+        - employer
+        - location
+        - workType
+        - category
+        - requiredSkills
+        - match
+        - skillGap
+        - verifiedEmployer
+        - description
+        - availability
+        - experience
+        - compensation
+      properties:
+        id: *a2
+        employerId: *a2
+        title: *a1
+        employer: *a1
+        location: *a1
+        workType: *a1
+        category: *a1
+        requiredSkills: *a4
+        preferredSkills: *a4
+        match: *a2
+        skillGap: *a4
+        matchedSkills: *a4
+        gapCourses:
+          type: array
+          items:
+            type: object
+            required:
+              - skill
+              - courseId
+              - courseTitle
+            properties:
+              skill: *a1
+              courseId:
+                type:
+                  - number
+                  - "null"
+              courseTitle:
+                type:
+                  - string
+                  - "null"
+        verifiedEmployer: *a3
+        employerVerificationStatus: *a1
+        description: *a1
+        responsibilities: *a1
+        availability: *a1
+        experience: *a1
+        compensation: *a1
+        deadline:
+          type:
+            - string
+            - "null"
+        status: *a1
+        saved: *a3
+        application:
+          oneOf:
+            - type: object
+              required:
+                - id
+                - status
+              properties:
+                id: *a2
+                status: *a1
+            - type: "null"
+        verifiedSkillCount: *a2
+    OpportunityInput:
+      type: object
+      required:
+        - title
+        - description
+        - category
+        - location
+        - workType
+        - requiredSkills
+      properties:
+        title: *a1
+        description: *a1
+        responsibilities: *a1
+        category: *a1
+        location: *a1
+        workType:
+          type: string
+          enum:
+            - Local
+            - Remote
+            - Part-time
+            - Full-time
+            - Flexible
+        availability: *a1
+        experience: *a1
+        experienceYears: *a2
+        compensation: *a1
+        deadline:
+          type:
+            - string
+            - "null"
+        requiredSkills:
+          type: array
+          items: *a1
+        preferredSkills: *a4
+        status:
+          type: string
+          enum:
+            - open
+            - closed
+    OpportunityFilters:
+      type: object
+      required:
+        - locations
+        - categories
+        - workTypes
+        - skills
+        - availability
+      properties:
+        locations: *a4
+        categories: *a4
+        workTypes: *a4
+        skills: *a4
+        availability: *a4
+    MatchExplanation:
+      type: object
+      required:
+        - match
+        - reasons
+        - gaps
+        - recommendedNextStep
+        - scoring
+      properties:
+        match: *a2
+        reasons: *a4
+        gaps: *a4
+        recommendedNextStep: *a1
+        scoring:
+          type: array
+          items:
+            type: object
+            required:
+              - label
+              - value
+            properties:
+              key: *a1
+              label: *a1
+              value: *a2
+              earned: *a2
+              status:
+                type: string
+                enum:
+                  - full
+                  - partial
+                  - none
+              detail: *a1
+        matchingSkills: *a4
+        missingSkills: *a4
+        recommendedCourse:
+          oneOf:
+            - type: object
+              required:
+                - id
+                - title
+              properties:
+                id: *a2
+                title: *a1
+            - type: "null"
+        note: *a1
+    ApplyInput:
+      type: object
+      required: []
+      properties:
+        coverNote: *a1
+    Application:
+      type: object
+      required:
+        - id
+        - opportunity
+        - employer
+        - dateApplied
+        - status
+        - nextStep
+      properties:
+        id: *a2
+        opportunityId: *a2
+        opportunity: *a1
+        employer: *a1
+        dateApplied: *a1
+        status: *a1
+        nextStep: *a1
+        matchPercent: *a2
+        coverNote: *a1
+        updatedAt: *a1
+        completedAt:
+          type:
+            - string
+            - "null"
+        history:
+          type: array
+          items:
+            type: object
+            required:
+              - status
+              - note
+              - createdAt
+            properties:
+              status: *a1
+              note: *a1
+              createdAt: *a1
+        feedbackDue: *a3
+        feedbackGiven: *a3
+    EmployerProfile:
+      type: object
+      required:
+        - id
+        - businessName
+        - employerName
+        - email
+        - location
+        - businessType
+        - description
+        - verificationStatus
+        - verificationInfo
+      properties:
+        id: *a2
+        businessName: *a1
+        employerName: *a1
+        email: *a1
+        phone: *a1
+        location: *a1
+        businessType: *a1
+        description: *a1
+        verificationStatus:
+          type: string
+          enum:
+            - Pending
+            - Verified
+            - Rejected
+        verificationInfo: *a1
+        evidenceUrl:
+          type:
+            - string
+            - "null"
+        reviewNotes:
+          type:
+            - string
+            - "null"
+        submittedAt: *a1
+        reviewedAt:
+          type:
+            - string
+            - "null"
+    EmployerProfileInput:
+      type: object
+      required: []
+      properties:
+        businessName: *a1
+        employerName: *a1
+        phone: *a1
+        location: *a1
+        businessType: *a1
+        description: *a1
+        verificationInfo: *a1
+        evidenceUrl:
+          type:
+            - string
+            - "null"
+    EmployerOpportunity:
+      type: object
+      required:
+        - id
+        - title
+        - description
+        - category
+        - location
+        - workType
+        - availability
+        - experience
+        - compensation
+        - status
+        - requiredSkills
+        - preferredSkills
+        - applicantCount
+        - createdAt
+      properties:
+        id: *a2
+        title: *a1
+        description: *a1
+        responsibilities: *a1
+        category: *a1
+        location: *a1
+        workType: *a1
+        availability: *a1
+        experience: *a1
+        experienceYears: *a2
+        compensation: *a1
+        deadline:
+          type:
+            - string
+            - "null"
+        status: *a1
+        requiredSkills: *a4
+        preferredSkills: *a4
+        applicantCount: *a2
+        createdAt: *a1
+    EmployerApplication:
+      type: object
+      required:
+        - id
+        - opportunityId
+        - opportunityTitle
+        - applicantLabel
+        - status
+        - matchPercent
+        - reasons
+        - gaps
+        - relevantSkills
+        - verifiedSkills
+        - certificates
+        - availability
+        - workPreferences
+        - feedbackSummary
+        - coverNote
+        - appliedAt
+        - updatedAt
+        - completedAt
+        - feedbackGiven
+        - contact
+      properties:
+        id: *a2
+        opportunityId: *a2
+        opportunityTitle: *a1
+        applicantLabel: *a1
+        status: *a1
+        matchPercent: *a2
+        reasons: *a4
+        gaps: *a4
+        relevantSkills:
+          type: array
+          items:
+            type: object
+            required:
+              - name
+              - verified
+              - level
+              - yearsExperience
+            properties:
+              name: *a1
+              verified: *a3
+              level: *a1
+              yearsExperience: *a2
+        verifiedSkills: *a4
+        certificates:
+          type: array
+          items:
+            type: object
+            required:
+              - title
+              - issuedAt
+            properties:
+              title: *a1
+              issuedAt: *a1
+        availability: *a1
+        workPreferences: *a4
+        feedbackSummary:
+          type: object
+          required:
+            - count
+            - average
+            - comments
+          properties:
+            count: *a2
+            average:
+              type:
+                - number
+                - "null"
+            comments: *a4
+        coverNote: *a1
+        appliedAt: *a1
+        updatedAt: *a1
+        completedAt:
+          type:
+            - string
+            - "null"
+        feedbackGiven: *a3
+        contact:
+          oneOf:
+            - type: object
+              required:
+                - name
+                - email
+                - phone
+              properties:
+                name: *a1
+                email: *a1
+                phone:
+                  type:
+                    - string
+                    - "null"
+            - type: "null"
+    ApplicationStatusInput:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum:
+            - Under Review
+            - Shortlisted
+            - Interview
+            - Selected
+            - Rejected
+        note: *a1
+    EmployerDashboard:
+      type: object
+      required:
+        - verificationStatus
+        - activeOpportunities
+        - totalApplications
+        - shortlisted
+        - interviews
+        - selected
+        - profileViews
+        - recentApplications
+      properties:
+        verificationStatus: *a1
+        activeOpportunities: *a2
+        totalApplications: *a2
+        shortlisted: *a2
+        interviews: *a2
+        selected: *a2
+        profileViews: *a2
+        recentApplications:
+          type: array
+          items:
+            $ref: "#/components/schemas/EmployerApplication"
+    FeedbackInput:
+      type: object
+      required:
+        - applicationId
+        - ratings
+      properties:
+        applicationId: *a2
+        ratings:
+          type: object
+          required: []
+          properties:
+            communication:
+              type: number
+              minimum: 1
+              maximum: 5
+            reliability:
+              type: number
+              minimum: 1
+              maximum: 5
+            skillPerformance:
+              type: number
+              minimum: 1
+              maximum: 5
+            workEnvironment:
+              type: number
+              minimum: 1
+              maximum: 5
+        comment:
+          type: string
+          maxLength: 1000
+    Feedback:
+      type: object
+      required:
+        - id
+        - applicationId
+        - opportunityTitle
+        - counterpart
+        - direction
+        - ratings
+        - rating
+        - comment
+        - createdAt
+      properties:
+        id: *a2
+        applicationId: *a2
+        opportunityTitle: *a1
+        counterpart: *a1
+        direction:
+          type: string
+          enum:
+            - employer_to_woman
+            - woman_to_employer
+        ratings:
+          type: object
+          additionalProperties: *a2
+        rating: *a2
+        comment: *a1
+        createdAt: *a1
+    FeedbackOverview:
+      type: object
+      required:
+        - received
+        - given
+        - due
+      properties:
+        received:
+          type: array
+          items:
+            $ref: "#/components/schemas/Feedback"
+        given:
+          type: array
+          items:
+            $ref: "#/components/schemas/Feedback"
+        due:
+          type: array
+          items:
+            type: object
+            required:
+              - applicationId
+              - opportunityTitle
+              - counterpart
+              - completedAt
+            properties:
+              applicationId: *a2
+              opportunityTitle: *a1
+              counterpart: *a1
+              completedAt: *a1
+    ReportInput:
+      type: object
+      required:
+        - targetType
+        - targetId
+        - reason
+      properties:
+        targetType:
+          type: string
+          enum:
+            - employer
+            - opportunity
+            - feedback
+            - content
+        targetId: *a2
+        reason: *a1
+        description: *a1
+    Report:
+      type: object
+      required:
+        - id
+        - targetType
+        - targetId
+        - targetLabel
+        - reason
+        - description
+        - status
+        - createdAt
+        - updatedAt
+      properties:
+        id: *a2
+        targetType: *a1
+        targetId: *a2
+        targetLabel: *a1
+        reason: *a1
+        description: *a1
+        status:
+          type: string
+          enum:
+            - Open
+            - Under Review
+            - Resolved
+            - Rejected
+        resolutionNote:
+          type:
+            - string
+            - "null"
+        reporterName: *a1
+        createdAt: *a1
+        updatedAt: *a1
+    ReportReviewInput:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum:
+            - Under Review
+            - Resolved
+            - Rejected
+        resolutionNote: *a1
+        action:
+          type: string
+          enum:
+            - none
+            - remove_opportunity
+            - suspend_user
+    Notification:
+      type: object
+      required:
+        - id
+        - type
+        - title
+        - body
+        - link
+        - read
+        - createdAt
+      properties:
+        id: *a2
+        type: *a1
+        title: *a1
+        body: *a1
+        link:
+          type:
+            - string
+            - "null"
+        read: *a3
+        createdAt: *a1
+    NotificationList:
+      type: object
+      required:
+        - unreadCount
+        - items
+      properties:
+        unreadCount: *a2
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Notification"
+    Dashboard:
+      type: object
+      required:
+        - welcome
+        - profileCompletion
+        - skillsAdded
+        - coursesCompleted
+        - assessmentsPassed
+        - opportunitiesMatched
+        - applications
+        - readiness
+        - recommendedNextStep
+        - topOpportunities
+        - applicationsList
+      properties:
+        welcome: *a1
+        profileCompletion: *a2
+        skillsAdded: *a2
+        coursesCompleted: *a2
+        assessmentsPassed: *a2
+        opportunitiesMatched: *a2
+        applications: *a2
+        readiness: *a2
+        recommendedNextStep:
+          type: object
+          required:
+            - title
+            - reason
+          properties:
+            title: *a1
+            reason: *a1
+        topOpportunities:
+          type: array
+          items:
+            $ref: "#/components/schemas/Opportunity"
+        applicationsList:
+          type: array
+          items:
+            $ref: "#/components/schemas/Application"
+        unreadNotifications: *a2
+    ScoreComponent:
+      type: object
+      required:
+        - key
+        - label
+        - score
+        - max
+        - explanation
+      properties:
+        key: *a1
+        label: *a1
+        score: *a2
+        max: *a2
+        explanation: *a1
+    NextStep:
+      type: object
+      required:
+        - title
+        - reason
+        - action
+      properties:
+        title: *a1
+        reason: *a1
+        courseId:
+          type:
+            - number
+            - "null"
+        action: *a1
+    SakhiScore:
+      type: object
+      required:
+        - score
+        - level
+        - components
+        - contributingFactors
+        - areasToImprove
+        - disclaimer
+        - recommendedNextStep
+      properties:
+        score: *a2
+        level: *a1
+        components:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScoreComponent"
+        contributingFactors: *a4
+        areasToImprove: *a4
+        disclaimer: *a1
+        recommendedNextStep:
+          $ref: "#/components/schemas/NextStep"
+    ScoreHistoryItem:
+      type: object
+      required:
+        - id
+        - score
+        - reason
+        - createdAt
+      properties:
+        id: *a2
+        score: *a2
+        reason: *a1
+        createdAt: *a1
+    AdminDashboard:
+      type: object
+      required:
+        - totalWomen
+        - totalEmployers
+        - verifiedEmployers
+        - pendingEmployers
+        - activeOpportunities
+        - applications
+        - courses
+        - openReports
+        - pendingSkillEvidence
+      properties:
+        totalWomen: *a2
+        totalEmployers: *a2
+        verifiedEmployers: *a2
+        pendingEmployers: *a2
+        activeOpportunities: *a2
+        applications: *a2
+        courses: *a2
+        openReports: *a2
+        pendingSkillEvidence: *a2
+    AdminUser:
+      type: object
+      required:
+        - id
+        - role
+        - name
+        - email
+        - status
+        - createdAt
+      properties:
+        id: *a2
+        role: *a1
+        name: *a1
+        email: *a1
+        phone:
+          type:
+            - string
+            - "null"
+        status:
+          type: string
+          enum:
+            - active
+            - suspended
+        createdAt: *a1
+        city:
+          type:
+            - string
+            - "null"
+        skillsCount: *a2
+        sakhiScore:
+          type:
+            - number
+            - "null"
+    AdminUserDetail:
+      type: object
+      required:
+        - user
+        - applications
+        - reportsAgainst
+      properties:
+        user:
+          $ref: "#/components/schemas/AdminUser"
+        profile:
+          oneOf:
+            - $ref: "#/components/schemas/Profile"
+            - type: "null"
+        applications: *a2
+        reportsAgainst: *a2
+    AdminStatusInput:
+      type: object
+      required:
+        - status
+      properties:
+        status: *a1
+    AdminEmployer:
+      type: object
+      required:
+        - id
+        - userId
+        - businessName
+        - employerName
+        - email
+        - phone
+        - location
+        - businessType
+        - description
+        - verificationStatus
+        - verificationInfo
+        - evidenceUrl
+        - reviewNotes
+        - submittedAt
+        - opportunityCount
+      properties:
+        id: *a2
+        userId: *a2
+        businessName: *a1
+        employerName: *a1
+        email: *a1
+        phone:
+          type:
+            - string
+            - "null"
+        location: *a1
+        businessType: *a1
+        description: *a1
+        verificationStatus:
+          type: string
+          enum:
+            - Pending
+            - Verified
+            - Rejected
+        verificationInfo: *a1
+        evidenceUrl:
+          type:
+            - string
+            - "null"
+        reviewNotes:
+          type:
+            - string
+            - "null"
+        submittedAt:
+          type:
+            - string
+            - "null"
+        opportunityCount: *a2
+    VerifyEmployerInput:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum:
+            - Verified
+            - Rejected
+        notes: *a1
+    AdminOpportunity:
+      type: object
+      required:
+        - id
+        - title
+        - businessName
+        - employerVerified
+        - status
+        - category
+        - location
+        - applicantCount
+        - createdAt
+      properties:
+        id: *a2
+        title: *a1
+        businessName: *a1
+        employerVerified: *a3
+        status: *a1
+        category: *a1
+        location: *a1
+        applicantCount: *a2
+        createdAt: *a1
+    SkillReviewInput:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum:
+            - Verified
+            - Rejected
+        notes: *a1
+    AdminSkillEvidence:
+      type: object
+      required:
+        - id
+        - userId
+        - userName
+        - skillName
+        - evidenceType
+        - evidenceUrl
+        - evidenceNote
+        - status
+      properties:
+        id: *a2
+        userId: *a2
+        userName: *a1
+        skillName: *a1
+        evidenceType:
+          type:
+            - string
+            - "null"
+        evidenceUrl:
+          type:
+            - string
+            - "null"
+        evidenceNote:
+          type:
+            - string
+            - "null"
+        status: *a1
+    CourseInput:
+      type: object
+      required:
+        - title
+        - category
+      properties:
+        title: *a1
+        category: *a1
+        difficulty: *a1
+        duration: *a1
+        description: *a1
+        skillsGained: *a4
+        verifiesSkills: *a4
+        passingScore:
+          type: number
+          minimum: 1
+          maximum: 100
+        published: *a3
+    LessonInput:
+      type: object
+      required:
+        - title
+      properties:
+        title: *a1
+        description: *a1
+        videoUrl:
+          type:
+            - string
+            - "null"
+        durationMinutes: *a2
+        content: *a1
+        objectives: *a4
+        resources:
+          type: array
+          items:
+            type: object
+            required:
+              - title
+              - url
+            properties:
+              title: *a1
+              url: *a1
+        position: *a2
+    QuestionInput:
+      type: object
+      required:
+        - type
+        - prompt
+      properties:
+        type:
+          type: string
+          enum:
+            - multiple_choice
+            - true_false
+            - short_answer
+        prompt: *a1
+        options: *a4
+        correctAnswer: *a1
+        keywords: *a4
+        minKeywords: *a2
+        explanation: *a1
+        skillName:
+          type:
+            - string
+            - "null"
+        position: *a2
+    AdminLesson:
+      type: object
+      required:
+        - id
+        - position
+        - title
+        - description
+        - videoUrl
+        - durationMinutes
+        - content
+        - objectives
+        - resources
+      properties:
+        id: *a2
+        position: *a2
+        title: *a1
+        description: *a1
+        videoUrl:
+          type:
+            - string
+            - "null"
+        durationMinutes: *a2
+        content: *a1
+        objectives: *a4
+        resources:
+          type: array
+          items:
+            type: object
+            required:
+              - title
+              - url
+            properties:
+              title: *a1
+              url: *a1
+    AdminQuestion:
+      type: object
+      required:
+        - id
+        - position
+        - type
+        - prompt
+        - options
+        - correctAnswer
+        - keywords
+        - minKeywords
+        - explanation
+        - skillName
+      properties:
+        id: *a2
+        position: *a2
+        type: *a1
+        prompt: *a1
+        options: *a4
+        correctAnswer: *a1
+        keywords: *a4
+        minKeywords: *a2
+        explanation: *a1
+        skillName:
+          type:
+            - string
+            - "null"
+    AdminCourse:
+      type: object
+      required:
+        - id
+        - title
+        - category
+        - difficulty
+        - duration
+        - description
+        - skillsGained
+        - verifiesSkills
+        - passingScore
+        - published
+        - lessons
+        - questions
+      properties:
+        id: *a2
+        title: *a1
+        category: *a1
+        difficulty: *a1
+        duration: *a1
+        description: *a1
+        skillsGained: *a4
+        verifiesSkills: *a4
+        passingScore: *a2
+        published: *a3
+        lessons:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminLesson"
+        questions:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminQuestion"

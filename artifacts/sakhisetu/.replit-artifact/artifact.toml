@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "SakhiSetu"
+description = "A guided employment-readiness platform helping women connect existing skills to targeted learning, verification, and suitable income opportunities through explainable matching."
+version = "1.0.0"
+id = "artifacts/sakhisetu"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18477
+
+[services.development]
+run = "pnpm --filter @workspace/sakhisetu run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/sakhisetu", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/sakhisetu/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18477"
+BASE_PATH = "/"
